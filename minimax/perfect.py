@@ -189,25 +189,56 @@ EQUIV_CLASSES = np.array(
 
 # utility functions
 def blank_board():
+    """
+    returns: np.array
+    get a fresh, blank board
+    """
     return np.zeros(16, dtype=np.int8)
 
 def is_win(board, player):
+    """
+    returns: Bool
+    checks if the given player has won
+    does not account for potential wins by the other player
+    """
     positions = board[WINNING_PATTERNS]
     return np.any(np.all(positions == player, axis=1))
 
 def is_draw(board):
+    """
+    returns: Bool
+    checks that the board is entirely empty
+    """
     return np.all(board != EMPTY)
 
 def is_terminal(board):
+    """
+    returns: Bool
+    returns True if someone (anyone) has won or there is a draw
+    """
     return is_win(board, X) or is_win(board, O) or is_draw(board)
 
 def show_board(board):
+    """
+    returns: None
+    utility function to print board to stdout
+    """
     print(np.reshape(board, (4, 4)))
 
 def make_move(board, move, player):
+    """
+    returns None
+    plays player at the specified move on the given board
+    """
     board[move] = player
 
 def get_lookup_key(board, lookup):
+    """
+    returns: Board | None
+    Checks if the given board has an equivalent board in the lookup table
+        if so, returns that board
+        else, returns None
+    """
     equiv_class = board[EQUIV_CLASSES]
     for equiv in equiv_class:
         equiv = equiv.tobytes()
@@ -216,10 +247,20 @@ def get_lookup_key(board, lookup):
     return None
 
 def add_lookup_key(board, lookup, val=[]):
+    """
+    returns None
+    first checks that the board (or an equivalent board) is not already in the lookup table
+    if not, it adds the board to the lookup table
+    optional: adds the value of val to the lookup table, should be a list of moves from the given board
+    """
     if get_lookup_key(board, lookup) is None:
         lookup[board.tobytes()] = val
 
 def key_to_board(key, board):
+    """
+    converts the lookup key to a board
+    copies to (overwrites) a pre-existing board to prevent slow memory allocation
+    """
     new_board = np.frombuffer(key, dtype=np.int8)
     np.copyto(board, new_board) # copies in place to prevent more memory allocation
 
